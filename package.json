@@ -1,0 +1,31 @@
+{
+  "name": "zero-human-touch-pipeline",
+  "version": "1.0.0",
+  "description": "Automated Jira-to-build-to-test-to-deploy-to-QA pipeline for the FWD take-home assignment.",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "poll": "node src/index.js --once",
+    "mock": "node src/cli/mockPipeline.js",
+    "check:setup": "node src/cli/checkSetup.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "qa": "node src/cli/runQa.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "axios": "^1.16.0",
+    "dotenv": "^17.4.2",
+    "fs-extra": "^11.3.5",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^8.0.7",
+    "slugify": "^1.6.9"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "vitest": "^4.1.5"
+  }
+}
