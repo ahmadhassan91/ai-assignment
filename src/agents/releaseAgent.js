@@ -43,7 +43,7 @@ export class ReleaseAgent {
     }
 
     await this.runCli('git', ['checkout', '-b', branchName], 'create release branch');
-    await this.runCli('git', ['add', path.resolve(ctx.runDir)], 'stage release artifacts');
+    await this.runCli('git', ['add', '-f', path.resolve(ctx.runDir)], 'stage release artifacts');
 
     let prUrl = null;
     if (await this.hasReleaseChanges(ctx.runDir)) {

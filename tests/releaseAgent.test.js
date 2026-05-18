@@ -205,6 +205,11 @@ describe('ReleaseAgent', () => {
 
     expect(release.deploymentUrl).toBe('https://widgets-prod.vercel.app');
     expect(runCommand).toHaveBeenCalledWith(
+      'git',
+      ['add', '-f', path.resolve(runDir)],
+      expect.any(Object),
+    );
+    expect(runCommand).toHaveBeenCalledWith(
       'npx',
       ['vercel', 'deploy', runDir, '--yes', '--token', 'token_123', '--prod'],
       expect.any(Object),
