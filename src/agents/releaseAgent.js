@@ -129,6 +129,11 @@ export class ReleaseAgent {
     }
 
     const result = await this.runCli('npx', ['vercel', ...args], 'deploy to Vercel with the CLI');
+    const deploymentId = this.parseVercelDeploymentId(result.stdout);
+    if (deploymentId) {
+      const inspect = await this.runCli('npx', ['vercel', 'inspect', deploymentId], 'inspect Vercel deployment');
+      return this.parseVercelCliUrl(inspect.stdout);
+    }
     return this.parseVercelCliUrl(result.stdout);
   }
 
@@ -269,12 +274,16 @@ export class ReleaseAgent {
   }
 
   parseVercelCliUrl(stdout = '') {
-    const urls = (stdout.match(/https?:\/\/[^\s\]]+/g) || []).map((url) => url.replace(/[),.]+$/, ''));
-    const deploymentUrl = urls.find((url) => /\.vercel\.app(?:\/)?$/i.test(url)) || urls.at(-1);
+    const urls = (stdout.match(/https?:\/\/[^\s\]]+/g) || []).map((url) => url.replace(/[)",.]+$/, ''));
+    const deploymentUrl = urls.find((url) => /\.vercel\.app(?:\/)?$/i.test(url));
     if (!deploymentUrl) {
       throw new Error('Vercel CLI did not return a deployment URL.');
     }
     return this.normalizeUrl(deploymentUrl);
+  }
+
+  parseVercelDeploymentId(stdout = '') {
+    return (stdout.match(/\bdpl_[A-Za-z0-9]+/) || [])[0] || null;
   }
 
   parseGitHubPullRequestUrl(stdout = '') {

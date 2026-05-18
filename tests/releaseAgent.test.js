@@ -73,6 +73,14 @@ describe('ReleaseAgent', () => {
     ).toBe('https://widgets-abc123.vercel.app');
   });
 
+  test('parses Vercel deployment id from CLI output', () => {
+    const agent = new ReleaseAgent();
+
+    expect(agent.parseVercelDeploymentId('Queued: https://api.vercel.com/v13/deployments/dpl_abc123')).toBe(
+      'dpl_abc123',
+    );
+  });
+
   test('throws a clear error when Vercel CLI output has no URL', () => {
     const agent = new ReleaseAgent();
 
@@ -154,6 +162,9 @@ describe('ReleaseAgent', () => {
         return { code: 0, stdout: '', stderr: '' };
       }
       if (command === 'npx' && args[0] === 'vercel') {
+        if (args[1] === 'inspect') {
+          return { code: 0, stdout: 'url https://empty-release.vercel.app\n', stderr: '' };
+        }
         return { code: 0, stdout: 'Preview: https://empty-release.vercel.app\n', stderr: '' };
       }
       return { code: 0, stdout: '', stderr: '' };
@@ -197,6 +208,9 @@ describe('ReleaseAgent', () => {
         return { code: 0, stdout: 'https://github.com/acme/widgets/pull/12\n', stderr: '' };
       }
       if (command === 'npx' && args[0] === 'vercel') {
+        if (args[1] === 'inspect') {
+          return { code: 0, stdout: 'url https://widgets-prod.vercel.app\n', stderr: '' };
+        }
         return { code: 0, stdout: 'Production: https://widgets-prod.vercel.app\n', stderr: '' };
       }
       return { code: 0, stdout: '', stderr: '' };
