@@ -80,7 +80,7 @@ export class PipelineOrchestrator {
       '',
       `Failed stage: ${error.failedStage || 'unknown'}`,
       '',
-      `Error: ${error.message}`,
+      `Error: ${truncate(error.message, 1800)}`,
       '',
       `Run directory: ${ctx.runDir}`,
     ].join('\n');
@@ -98,4 +98,12 @@ export class PipelineOrchestrator {
       qaReport.summary,
     ].join('\n');
   }
+}
+
+function truncate(value, maxLength) {
+  const text = String(value || '');
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return `${text.slice(0, maxLength)}... [truncated]`;
 }
