@@ -1,0 +1,34 @@
+{
+  "failedStage": null,
+  "stages": [
+    {
+      "name": "intake",
+      "status": "completed",
+      "startedAt": "2026-05-18T12:16:40.871Z",
+      "completedAt": "2026-05-18T12:16:42.692Z"
+    },
+    {
+      "name": "transition in progress",
+      "status": "completed",
+      "startedAt": "2026-05-18T12:16:42.693Z",
+      "completedAt": "2026-05-18T12:16:44.136Z"
+    },
+    {
+      "name": "build",
+      "status": "completed",
+      "startedAt": "2026-05-18T12:16:44.137Z",
+      "completedAt": "2026-05-18T12:16:44.268Z"
+    },
+    {
+      "name": "tests",
+      "status": "completed",
+      "startedAt": "2026-05-18T12:16:44.269Z",
+      "completedAt": "2026-05-18T12:16:44.388Z"
+    },
+    {
+      "name": "release",
+      "status": "started",
+      "startedAt": "2026-05-18T12:16:44.389Z"
+    }
+  ]
+}

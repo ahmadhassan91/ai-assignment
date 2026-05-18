@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planning Poker</title>
+  <style>
+    :root { --ink: #172033; --muted: #657085; --line: #d9e1ec; --accent: #0f766e; --accent-2: #2563eb; --bg: #f6f8fb; --panel: #ffffff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); }
+    button, input, textarea, select { font: inherit; }
+    button { border: 0; cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-rows: auto 1fr; }
+    header { background: #0b1220; color: #fff; padding: 18px clamp(16px, 4vw, 34px); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    h1 { margin: 0; font-size: 22px; letter-spacing: 0; }
+    .status-pill { padding: 8px 10px; border-radius: 999px; background: rgba(255,255,255,.12); color: #dbeafe; font-size: 13px; }
+    main { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 18px; padding: 18px; max-width: 1440px; width: 100%; margin: 0 auto; }
+    section, aside { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+    aside, section { padding: 16px; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    label { display: block; color: var(--muted); font-size: 13px; margin: 12px 0 6px; }
+    input, textarea, select { width: 100%; border: 1px solid var(--line); border-radius: 6px; padding: 10px 11px; background: #fff; color: var(--ink); }
+    textarea { min-height: 84px; resize: vertical; }
+    .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .primary { background: var(--accent); color: #fff; padding: 10px 12px; border-radius: 6px; font-weight: 700; }
+    .secondary { background: #e8edf5; color: #172033; padding: 10px 12px; border-radius: 6px; font-weight: 700; }
+    .danger { background: #fee2e2; color: #991b1b; padding: 10px 12px; border-radius: 6px; font-weight: 700; }
+    .board { display: grid; gap: 16px; align-content: start; }
+    .toolbar { display: flex; gap: 8px; flex-wrap: wrap; justify-content: space-between; align-items: center; }
+    .deck { display: grid; grid-template-columns: repeat(10, minmax(54px, 1fr)); gap: 8px; }
+    .card { min-height: 70px; border: 1px solid var(--line); background: #fff; border-radius: 8px; font-weight: 800; font-size: 20px; color: var(--accent-2); box-shadow: 0 1px 2px rgba(15,23,42,.06); }
+    .participants { display: grid; gap: 8px; }
+    .participant { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 8px; background: #fbfdff; }
+    .vote { min-width: 58px; text-align: center; padding: 8px 10px; border-radius: 6px; background: #eef2f7; font-weight: 800; }
+    .vote.revealed { background: #ecfdf5; color: #047857; }
+    .vote.top { outline: 3px solid #facc15; }
+    .stats { display: grid; grid-template-columns: repeat(5, minmax(110px, 1fr)); gap: 8px; }
+    .stat { padding: 12px; background: #f8fafc; border: 1px solid var(--line); border-radius: 8px; }
+    .stat span { display: block; color: var(--muted); font-size: 12px; }
+    .stat strong { display: block; margin-top: 4px; font-size: 18px; }
+    .history { display: grid; gap: 8px; margin-top: 12px; }
+    .history-item { padding: 10px; border: 1px solid var(--line); border-radius: 8px; display: flex; justify-content: space-between; gap: 10px; }
+    .empty { color: var(--muted); padding: 12px; border: 1px dashed var(--line); border-radius: 8px; }
+    @media (max-width: 860px) { main { grid-template-columns: 1fr; } .deck { grid-template-columns: repeat(5, 1fr); } .stats { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 420px) { header { align-items: flex-start; flex-direction: column; } main { padding: 12px; } .deck { grid-template-columns: repeat(3, 1fr); } .toolbar, .row { align-items: stretch; flex-direction: column; } .stats { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header><h1>Planning Poker</h1><div class="status-pill" id="statusPill">Votes hidden</div></header>
+    <main>
+      <aside>
+        <h2>Ticket</h2>
+        <label for="ticketKey">Ticket key</label><input id="ticketKey" placeholder="KAN-42">
+        <label for="ticketTitle">Title</label><input id="ticketTitle" placeholder="Build invite flow">
+        <label for="ticketDescription">Description</label><textarea id="ticketDescription" placeholder="What should the team estimate?"></textarea>
+        <div class="row" style="margin-top:12px"><button class="secondary" id="newTicket">New Ticket</button><button class="danger" id="resetVotes">Reset Votes</button></div>
+        <h2 style="margin-top:20px">Participants</h2>
+        <div class="row"><input id="participantName" placeholder="Name"><button class="primary" id="addParticipant">Add</button></div>
+      </aside>
+      <section class="board">
+        <div class="toolbar"><h2>Voting Board</h2><div class="row"><button class="primary" id="revealVotes">Reveal</button><select id="finalEstimate" aria-label="Final estimate"></select><button class="secondary" id="saveEstimate">Save Estimate</button></div></div>
+        <div class="deck" id="deck"></div>
+        <div class="participants" id="participants"></div>
+        <div class="stats" id="stats"></div>
+        <div><h2>Session History</h2><div class="history" id="history"></div></div>
+      </section>
+    </main>
+  </div>
+  <script>
+    const deck = ['0','1','2','3','5','8','13','21','?','coffee'];
+    const storeKey = 'planning-poker-session-v1';
+    const state = loadState();
+    const el = id => document.getElementById(id);
+    function loadState() { const fallback = { ticket: { key: '', title: '', description: '' }, participants: [], revealed: false, history: [] }; try { return { ...fallback, ...JSON.parse(localStorage.getItem(storeKey) || '{}') }; } catch { return fallback; } }
+    function saveState() { localStorage.setItem(storeKey, JSON.stringify(state)); }
+    function syncTicketFromInputs() { state.ticket = { key: el('ticketKey').value.trim(), title: el('ticketTitle').value.trim(), description: el('ticketDescription').value.trim() }; saveState(); }
+    function renderDeck() { el('deck').innerHTML = deck.map(card => '<button class="card" data-card="' + card + '">' + card + '</button>').join(''); el('finalEstimate').innerHTML = deck.map(card => '<option value="' + card + '">' + card + '</option>').join(''); }
+    function renderParticipants() {
+      const counts = voteCounts();
+      const topVote = Object.entries(counts).sort((a,b) => b[1] - a[1])[0]?.[0];
+      el('participants').innerHTML = state.participants.length ? state.participants.map((p, index) => {
+        const voteText = state.revealed ? (p.vote || '-') : (p.vote ? 'Locked' : 'Waiting');
+        const classes = ['vote', state.revealed ? 'revealed' : '', state.revealed && p.vote === topVote ? 'top' : ''].join(' ');
+        return '<div class="participant"><div><strong>' + escapeHtml(p.name) + '</strong><div class="row">' + deck.map(card => '<button class="secondary pick" data-index="' + index + '" data-card="' + card + '">' + card + '</button>').join('') + '</div></div><div class="' + classes + '">' + escapeHtml(voteText) + '</div></div>';
+      }).join('') : '<div class="empty">Add participants to start estimating.</div>';
+      el('statusPill').textContent = state.revealed ? 'Votes revealed' : 'Votes hidden';
+      renderStats();
+    }
+    function renderStats() {
+      const numeric = state.participants.map(p => Number(p.vote)).filter(Number.isFinite);
+      const counts = voteCounts();
+      const top = Object.entries(counts).sort((a,b) => b[1] - a[1])[0];
+      const consensus = top && top[1] === state.participants.filter(p => p.vote).length && top[1] > 1 ? 'Consensus' : 'Needs discussion';
+      const avg = numeric.length ? (numeric.reduce((a,b) => a + b, 0) / numeric.length).toFixed(1) : '-';
+      const high = numeric.length ? Math.max(...numeric) : '-';
+      const low = numeric.length ? Math.min(...numeric) : '-';
+      const values = [['Votes', state.participants.filter(p => p.vote).length], ['Average', avg], ['Highest', high], ['Lowest', low], ['Consensus', state.revealed ? consensus : 'Hidden']];
+      el('stats').innerHTML = values.map(([label, value]) => '<div class="stat"><span>' + label + '</span><strong>' + value + '</strong></div>').join('');
+    }
+    function renderHistory() { el('history').innerHTML = state.history.length ? state.history.map(item => '<div class="history-item"><div><strong>' + escapeHtml(item.key || 'Untitled') + '</strong><div>' + escapeHtml(item.title || '') + '</div></div><strong>' + escapeHtml(item.estimate) + '</strong></div>').join('') : '<div class="empty">No saved estimates yet.</div>'; }
+    function voteCounts() { return state.participants.reduce((acc, p) => { if (p.vote) acc[p.vote] = (acc[p.vote] || 0) + 1; return acc; }, {}); }
+    function renderAll() { el('ticketKey').value = state.ticket.key || ''; el('ticketTitle').value = state.ticket.title || ''; el('ticketDescription').value = state.ticket.description || ''; renderDeck(); renderParticipants(); renderHistory(); }
+    function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+    ['ticketKey','ticketTitle','ticketDescription'].forEach(id => el(id).addEventListener('input', syncTicketFromInputs));
+    el('addParticipant').addEventListener('click', () => { const name = el('participantName').value.trim(); if (!name) return; state.participants.push({ name, vote: '' }); el('participantName').value = ''; saveState(); renderParticipants(); });
+    el('participants').addEventListener('click', event => { const button = event.target.closest('.pick'); if (!button) return; state.participants[Number(button.dataset.index)].vote = button.dataset.card; state.revealed = false; saveState(); renderParticipants(); });
+    el('revealVotes').addEventListener('click', () => { state.revealed = true; saveState(); renderParticipants(); });
+    el('resetVotes').addEventListener('click', () => { state.participants.forEach(p => p.vote = ''); state.revealed = false; saveState(); renderParticipants(); });
+    el('newTicket').addEventListener('click', () => { state.ticket = { key: '', title: '', description: '' }; state.participants.forEach(p => p.vote = ''); state.revealed = false; saveState(); renderAll(); });
+    el('saveEstimate').addEventListener('click', () => { syncTicketFromInputs(); state.history.unshift({ ...state.ticket, estimate: el('finalEstimate').value, savedAt: new Date().toISOString() }); saveState(); renderHistory(); });
+    renderAll();
+  </script>
+</body>
+</html>
