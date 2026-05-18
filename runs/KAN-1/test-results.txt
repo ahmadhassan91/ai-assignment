@@ -1,0 +1,8 @@
+Planning poker smoke tests
+PASS contains planning poker title
+PASS contains participant workflow
+PASS contains reveal workflow
+PASS contains localStorage persistence
+PASS contains Fibonacci deck values
+
+PASS

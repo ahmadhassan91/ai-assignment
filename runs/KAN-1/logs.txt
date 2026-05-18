@@ -1,0 +1,10 @@
+[2026-05-18T12:16:40.869Z] Starting KAN-1
+[2026-05-18T12:16:40.871Z] Stage started: intake
+[2026-05-18T12:16:42.693Z] Stage completed: intake
+[2026-05-18T12:16:42.693Z] Stage started: transition in progress
+[2026-05-18T12:16:44.137Z] Stage completed: transition in progress
+[2026-05-18T12:16:44.137Z] Stage started: build
+[2026-05-18T12:16:44.269Z] Stage completed: build
+[2026-05-18T12:16:44.269Z] Stage started: tests
+[2026-05-18T12:16:44.389Z] Stage completed: tests
+[2026-05-18T12:16:44.389Z] Stage started: release

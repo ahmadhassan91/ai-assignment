@@ -1,0 +1,33 @@
+{
+  "key": "KAN-1",
+  "id": "10000",
+  "fields": {
+    "summary": "[AI-PIPELINE] Planning Poker Ticket Sizing Game",
+    "attachment": [
+      {
+        "self": "https://ahmad-sheikh.atlassian.net/rest/api/3/attachment/10000",
+        "id": "10000",
+        "filename": "requirements.md",
+        "author": {
+          "self": "https://ahmad-sheikh.atlassian.net/rest/api/3/user?accountId=557058%3A21926da1-4184-4cfc-a055-2680dd82f41a",
+          "accountId": "557058:21926da1-4184-4cfc-a055-2680dd82f41a",
+          "emailAddress": "sheikhahmad91@gmail.com",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/8f5c40abce5eddbaeb52841e20f144d8?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAS-6.png",
+            "24x24": "https://secure.gravatar.com/avatar/8f5c40abce5eddbaeb52841e20f144d8?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAS-6.png",
+            "16x16": "https://secure.gravatar.com/avatar/8f5c40abce5eddbaeb52841e20f144d8?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAS-6.png",
+            "32x32": "https://secure.gravatar.com/avatar/8f5c40abce5eddbaeb52841e20f144d8?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FAS-6.png"
+          },
+          "displayName": "Ahmad Sheikh",
+          "active": true,
+          "timeZone": "Asia/Karachi",
+          "accountType": "atlassian"
+        },
+        "created": "2026-05-18T17:01:35.595+0500",
+        "size": 2768,
+        "mimeType": "text/markdown",
+        "content": "https://ahmad-sheikh.atlassian.net/rest/api/3/attachment/content/10000"
+      }
+    ]
+  }
+}
