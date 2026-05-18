@@ -11,6 +11,8 @@ export function runCommand(command, args, options = {}) {
     let stdout = '';
     let stderr = '';
 
+    child.stdin.end();
+
     child.stdout.on('data', (data) => {
       stdout += data.toString();
     });
