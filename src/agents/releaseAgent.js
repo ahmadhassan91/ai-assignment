@@ -124,16 +124,15 @@ export class ReleaseAgent {
     if (!ctx?.appDir) {
       throw new Error('ReleaseAgent requires ctx.appDir for Vercel CLI deployments.');
     }
-    if (!token) {
-      throw new Error('ReleaseAgent requires VERCEL_TOKEN or config.vercel.token for Vercel CLI deployments.');
+    const args = ['deploy', ctx.appDir, '--yes'];
+    if (token) {
+      args.push('--token', token);
     }
-
-    const args = ['deploy', ctx.appDir, '--yes', '--token', token];
     if (this.isVercelProd()) {
       args.push('--prod');
     }
 
-    const result = await this.runCli('vercel', args, 'deploy to Vercel with the CLI');
+    const result = await this.runCli('npx', ['vercel', ...args], 'deploy to Vercel with the CLI');
     return this.parseVercelCliUrl(result.stdout);
   }
 

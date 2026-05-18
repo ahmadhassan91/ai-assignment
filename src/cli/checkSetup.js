@@ -26,10 +26,19 @@ function checkTools(mode) {
   return [
     ...tools,
     {
+      name: 'vercel',
+      available: commandExists('vercel') || commandExists('npx'),
+    },
+    {
       name: `agent command (${mode})`,
-      available: mode === 'mock' || commandExists(mode),
+      available: mode === 'mock' || commandExists(firstCommandToken(mode)),
     },
   ];
+}
+
+function firstCommandToken(commandLine) {
+  const match = String(commandLine).match(/"([^"]*)"|'([^']*)'|[^\s]+/);
+  return match?.[1] || match?.[2] || match?.[0] || commandLine;
 }
 
 function commandExists(command) {

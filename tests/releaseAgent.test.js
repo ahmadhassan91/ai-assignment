@@ -145,7 +145,7 @@ describe('ReleaseAgent', () => {
       if (command === 'git' && args[0] === 'status') {
         return { code: 0, stdout: '', stderr: '' };
       }
-      if (command === 'vercel') {
+      if (command === 'npx' && args[0] === 'vercel') {
         return { code: 0, stdout: 'Preview: https://empty-release.vercel.app\n', stderr: '' };
       }
       return { code: 0, stdout: '', stderr: '' };
@@ -188,7 +188,7 @@ describe('ReleaseAgent', () => {
       if (command === 'gh') {
         return { code: 0, stdout: 'https://github.com/acme/widgets/pull/12\n', stderr: '' };
       }
-      if (command === 'vercel') {
+      if (command === 'npx' && args[0] === 'vercel') {
         return { code: 0, stdout: 'Production: https://widgets-prod.vercel.app\n', stderr: '' };
       }
       return { code: 0, stdout: '', stderr: '' };
@@ -205,11 +205,29 @@ describe('ReleaseAgent', () => {
 
     expect(release.deploymentUrl).toBe('https://widgets-prod.vercel.app');
     expect(runCommand).toHaveBeenCalledWith(
-      'vercel',
-      ['deploy', runDir, '--yes', '--token', 'token_123', '--prod'],
+      'npx',
+      ['vercel', 'deploy', runDir, '--yes', '--token', 'token_123', '--prod'],
       expect.any(Object),
     );
     expect(axios.get).toHaveBeenCalledWith('https://widgets-prod.vercel.app', expect.any(Object));
+  });
+
+  test('deploys with Vercel CLI mode using logged-in CLI when no token is configured', async () => {
+    process.env.VERCEL_DEPLOY_MODE = 'cli';
+    delete process.env.VERCEL_TOKEN;
+    const runDir = await fs.mkdtemp(path.join(os.tmpdir(), 'release-agent-'));
+    const agent = new ReleaseAgent();
+    axios.get.mockResolvedValue({ status: 200 });
+    runCommand.mockResolvedValue({
+      code: 0,
+      stdout: 'Preview: https://logged-in-cli.vercel.app\n',
+      stderr: '',
+    });
+
+    const url = await agent.deployToVercel({ appDir: runDir }, 'feature/APP-14-cli-auth');
+
+    expect(url).toBe('https://logged-in-cli.vercel.app');
+    expect(runCommand).toHaveBeenCalledWith('npx', ['vercel', 'deploy', runDir, '--yes'], expect.any(Object));
   });
 
   test('reports missing Vercel API project configuration clearly', async () => {

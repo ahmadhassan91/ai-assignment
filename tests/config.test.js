@@ -21,14 +21,26 @@ describe('config validation helpers', () => {
     expect(result.missingRequired).toEqual([
       'JIRA_PROJECT_KEY',
       'GITHUB_REPO',
-      'VERCEL_TOKEN',
-      'VERCEL_PROJECT_ID',
       'EMAIL_HOST',
       'EMAIL_USER',
       'EMAIL_PASS',
       'EMAIL_FROM',
       'EMAIL_TO',
+      'VERCEL_TOKEN',
+      'VERCEL_PROJECT_ID',
     ]);
+  });
+
+  test('validateConfigForMode requires Vercel API fields in API deploy mode', () => {
+    const result = validateConfigForMode('codex', {
+      ...makeRequiredEnv(),
+      VERCEL_DEPLOY_MODE: 'api',
+      VERCEL_TOKEN: '',
+      VERCEL_PROJECT_ID: '',
+    });
+
+    expect(result.ready).toBe(false);
+    expect(result.missingRequired).toEqual(['VERCEL_TOKEN', 'VERCEL_PROJECT_ID']);
   });
 
   test('validateConfigForMode accepts all real-mode required env vars', () => {
@@ -37,7 +49,18 @@ describe('config validation helpers', () => {
     expect(result).toEqual({
       mode: 'codex',
       ready: true,
-      requiredNames: Object.keys(makeRequiredEnv()),
+      requiredNames: [
+        'JIRA_BASE_URL',
+        'JIRA_EMAIL',
+        'JIRA_API_TOKEN',
+        'JIRA_PROJECT_KEY',
+        'GITHUB_REPO',
+        'EMAIL_HOST',
+        'EMAIL_USER',
+        'EMAIL_PASS',
+        'EMAIL_FROM',
+        'EMAIL_TO',
+      ],
       missingRequired: [],
     });
   });
@@ -59,8 +82,7 @@ function makeRequiredEnv() {
     JIRA_API_TOKEN: 'token',
     JIRA_PROJECT_KEY: 'AI',
     GITHUB_REPO: 'owner/repo',
-    VERCEL_TOKEN: 'vercel-token',
-    VERCEL_PROJECT_ID: 'project-id',
+    VERCEL_DEPLOY_MODE: 'cli',
     EMAIL_HOST: 'smtp.example.com',
     EMAIL_USER: 'smtp-user',
     EMAIL_PASS: 'smtp-pass',

@@ -9,8 +9,6 @@ export const REQUIRED_ENV_NAMES = [
   'JIRA_API_TOKEN',
   'JIRA_PROJECT_KEY',
   'GITHUB_REPO',
-  'VERCEL_TOKEN',
-  'VERCEL_PROJECT_ID',
   'EMAIL_HOST',
   'EMAIL_USER',
   'EMAIL_PASS',
@@ -40,9 +38,11 @@ export function getConfig() {
       repo: requireEnv('GITHUB_REPO'),
     },
     vercel: {
-      token: requireEnv('VERCEL_TOKEN'),
-      projectId: requireEnv('VERCEL_PROJECT_ID'),
+      deployMode: process.env.VERCEL_DEPLOY_MODE || 'api',
+      token: process.env.VERCEL_TOKEN,
+      projectId: process.env.VERCEL_PROJECT_ID,
       orgId: process.env.VERCEL_ORG_ID,
+      prod: process.env.VERCEL_PROD,
     },
     email: {
       host: requireEnv('EMAIL_HOST'),
@@ -64,7 +64,7 @@ export function getMissingEnv(requiredNames, processEnv = process.env) {
 
 export function validateConfigForMode(mode = process.env.AGENT_COMMAND || 'codex', processEnv = process.env) {
   const normalizedMode = mode || 'codex';
-  const requiredNames = normalizedMode === 'mock' ? [] : REQUIRED_ENV_NAMES;
+  const requiredNames = normalizedMode === 'mock' ? [] : getRequiredEnvNames(processEnv);
   const missingRequired = getMissingEnv(requiredNames, processEnv);
 
   return {
@@ -73,6 +73,19 @@ export function validateConfigForMode(mode = process.env.AGENT_COMMAND || 'codex
     requiredNames,
     missingRequired,
   };
+}
+
+export function getRequiredEnvNames(processEnv = process.env) {
+  const vercelDeployMode = processEnv.VERCEL_DEPLOY_MODE || 'api';
+  if (vercelDeployMode === 'cli') {
+    return REQUIRED_ENV_NAMES;
+  }
+
+  return [
+    ...REQUIRED_ENV_NAMES,
+    'VERCEL_TOKEN',
+    'VERCEL_PROJECT_ID',
+  ];
 }
 
 function requireEnv(name) {
