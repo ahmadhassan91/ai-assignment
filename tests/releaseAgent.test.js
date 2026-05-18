@@ -81,6 +81,14 @@ describe('ReleaseAgent', () => {
     );
   });
 
+  test('parses pull request URL from GitHub CLI output', () => {
+    const agent = new ReleaseAgent();
+
+    expect(agent.parseGitHubPullRequestUrl('Created pull request: https://github.com/acme/widgets/pull/12\n')).toBe(
+      'https://github.com/acme/widgets/pull/12',
+    );
+  });
+
   test('mock mode returns deterministic release links and writes a summary without shelling out', async () => {
     process.env.AGENT_COMMAND = 'mock';
     const runDir = await fs.mkdtemp(path.join(os.tmpdir(), 'release-agent-'));
@@ -215,6 +223,8 @@ describe('ReleaseAgent', () => {
       expect.any(Object),
     );
     expect(axios.get).toHaveBeenCalledWith('https://widgets-prod.vercel.app', expect.any(Object));
+    const ghCall = runCommand.mock.calls.find(([command]) => command === 'gh');
+    expect(ghCall[1]).not.toContain('--json');
   });
 
   test('deploys with Vercel CLI mode using logged-in CLI when no token is configured', async () => {

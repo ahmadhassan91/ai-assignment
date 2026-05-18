@@ -92,10 +92,6 @@ export class ReleaseAgent {
       `${this.getIssueKey(issue)}: ${issue?.fields?.summary || 'Generated app'}`,
       '--body',
       `Automated release for ${this.getIssueKey(issue)}.`,
-      '--json',
-      'url',
-      '--jq',
-      '.url',
     ];
 
     if (repo) {
@@ -103,7 +99,7 @@ export class ReleaseAgent {
     }
 
     const result = await this.runCli('gh', args, 'open GitHub pull request');
-    const prUrl = result.stdout.trim();
+    const prUrl = this.parseGitHubPullRequestUrl(result.stdout);
     if (!prUrl) {
       throw new Error('GitHub CLI did not return a pull request URL.');
     }
@@ -279,6 +275,10 @@ export class ReleaseAgent {
       throw new Error('Vercel CLI did not return a deployment URL.');
     }
     return this.normalizeUrl(deploymentUrl);
+  }
+
+  parseGitHubPullRequestUrl(stdout = '') {
+    return (stdout.match(/https:\/\/github\.com\/[^\s]+\/pull\/\d+/) || [])[0] || stdout.trim();
   }
 
   getVercelDeployMode() {
